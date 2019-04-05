@@ -9,7 +9,6 @@
   font-size: 14px;
   text-align: center;
 }
-
 .circle {
   position: absolute;
   width: 100px;
@@ -20,7 +19,23 @@
   font-size: 14px;
   text-align: center;
 }
-
+.button {
+    position: absolute;
+    top: 15px;
+    width: 40px;
+    height: 20px;
+    /*border: 2px solid #333;*/
+    box-sizing: border-box;
+    font-size: 10px;
+    text-align: center;
+}
+.process{
+    width:60%;
+}
+input.process:focus {
+    outline-width: 0;
+    border:none;
+}
 .rect {
   position: absolute;
   top: 25px;
@@ -32,89 +47,129 @@
   text-align: center;
 }
 .jsplumb-page {
-  position: relative;
-  .left-area, .right-area {
     position: relative;
-    height: 500px;
-    box-sizing: border-box;
-    font-size: 0;
-    display: inline-block;
-    border: 1px solid #333;
-    overflow: hidden;
-  }
-  
-  .left-area {
-    width: 20%;
-  }
-  
-  .right-area {
-    width: 75%;
-    margin-left: 5%;
-  }
 
-  
-  
-  .jsp-label {
-    background-color: white;
-    padding: 0.4em;
-    font: 12px sans-serif;
-    color: #444;
-    z-index: 21;
-    border: 1px dotted gray;
-    opacity: 0.8;
-    cursor: pointer;
-  }
-  .jsp-label.jtk-hover {
-    background-color: #5c96bc;
-    color: white;
-    border: 1px solid white;
-  }
-
-  .left-area > .item {
-    position: relative;
-    width: 100%;
-    height: 150px;
-    /*border-bottom: 1px solid #333;*/
-  }
-
-  .center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate3d(-50%,-50%,0);
-    // top: calc(50% - 50px);
-    // left: calc(50% - 50px);
-  }
-
-  .right-area {
-    position: relative;
-  }
-
-  .demo {
-    position: fixed;
-  }
-
-  .node {
-    padding: 0 10px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 14px;
-    text-align: center;
-    cursor: pointer;
-    .delete-btn {
-      color: red;
-      position: absolute;
-      right: -10px;
-      top: -10px;
-      font-size: 14px;
-      border: 1px solid red;
+    .left-area, .right-area {
+        position: relative;
+        height: 500px;
+        box-sizing: border-box;
+        font-size: 0;
+        display: inline-block;
+        border: 1px solid #333;
+        overflow: hidden;
     }
-  }
-  .bottom-area {
-    width: 100%;
-    border: 1px solid #000;
-    margin-top: 10px;
-    font-size: 14px;
-    padding: 10px;
-  }
+
+    .left-area {
+        width: 20%;
+    }
+
+    .right-area {
+        width: 75%;
+        margin-left: 5%;
+    }
+
+
+
+    .jsp-label {
+        background-color: white;
+        padding: 0.4em;
+        font: 12px sans-serif;
+        color: #444;
+        z-index: 21;
+        border: 1px dotted gray;
+        opacity: 0.8;
+        cursor: pointer;
+    }
+
+    .jsp-label.jtk-hover {
+        background-color: #5c96bc;
+        color: white;
+        border: 1px solid white;
+    }
+
+    .left-area > .item {
+        position: relative;
+        width: 100%;
+        height: 150px;
+        /*border-bottom: 1px solid #333;*/
+    }
+
+    .center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate3d(-50%,-50%,0);
+        // top: calc(50% - 50px);
+        // left: calc(50% - 50px);
+    }
+
+    .right-area {
+        position: relative;
+    }
+
+    .demo {
+        position: fixed;
+    }
+
+    .node {
+        padding: 0 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 14px;
+        text-align: center;
+        cursor: pointer;
+
+        .delete-btn {
+            color: red;
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            font-size: 14px;
+            border: 1px solid red;
+        }
+
+        .add-btn {
+            color: red;
+            position: absolute;
+            right: 0px;
+            top: -10px;
+            font-size: 14px;
+            border: 1px solid red;
+        }
+    }
+
+    .bottom-area {
+        width: 100%;
+        border: 1px solid #000;
+        margin-top: 10px;
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+
+        .modal-main {
+            position: fixed;
+            background: white;
+            width: 80%;
+            height: auto;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+        }
+    }
+
+    .display-block {
+        display: block;
+    }
+
+    .display-none {
+        display: none;
+    }
 }

@@ -40,11 +40,9 @@ class AppComponent extends React.Component {
     graph.addCell([rect, rect2, link]);
 
     graph.on('all', function(eventName, cell) {
-      // console.log(arguments,"------------");
     });
     rect.on('change:position', function(element) {
-      // console.log(element.id, ':', element.get('position'),);
-    });
+   });
     
   }
   render() {

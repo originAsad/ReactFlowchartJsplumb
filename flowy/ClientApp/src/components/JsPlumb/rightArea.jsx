@@ -1,7 +1,9 @@
+/* eslint react/prop-types: 0 */
 import React from 'react';
 import {Modal,Input,Button} from 'antd';
 import { jsPlumb } from 'jsplumb';
 import uuidv1 from 'uuid/v1';
+
 
 const DynamicAnchors = ['Left', 'Right', 'Top', 'Bottom']
 const connectorStyle = { stroke: '#7AB02C', strokeWidth: 2, joinstyle: 'round' }
@@ -32,27 +34,55 @@ export default class RightArea extends React.Component {
 
   state = {
     initialized: false,
-    dialogVisible: false,
+    dialogVisible_one: false,
+    dialogVisible_two: false,
     datas: null,
     dialogTitle: '',
     labelText: '',
-    nodes: [],
-    edges: [],
-    info: null,
+     nodes: [],
+     edges: [],
+      info: null,
+      shareholders: [{
+          name: ""
+      }],
+      nodeid:null,
   }
- 
+
   componentDidMount() {
     this.init();
     this.refs.nodes = [];
-    
   }
   componentWillMount = () => {
 
   }
-  hideModal = () => {
-    this.setState({dialogVisible:false});
+  hideModal_one = () => {
+    this.setState({dialogVisible_one:false});
   }
-  
+  hideModal_two = () => {
+        this.setState({ dialogVisible_two: false });
+    }
+
+    handleShareholderNameChange = idx => evt => {
+        const newShareholders = this.state.shareholders.map((shareholder, sidx) => {
+            if (idx !== sidx) return shareholder;
+            return { ...shareholder, name: evt.target.value };
+        });
+
+        this.setState({ shareholders: newShareholders });
+    };
+
+    handleAddShareholder = () => {
+        this.setState({
+            shareholders: this.state.shareholders.concat([{ name: "" }])
+        });
+    };
+
+    handleRemoveShareholder = idx => () => {
+        this.setState({
+            shareholders: this.state.shareholders.filter((s, sidx) => idx !== sidx)
+        });
+    };
+    
   init = () => {
     this.rjsp = jsPlumb.getInstance({
       ConnectionOverlays: [
@@ -66,23 +96,21 @@ export default class RightArea extends React.Component {
     this.rjsp.bind('beforeDrop', this.jspBeforeDrop)
     this.fetchData()
   }
- 
+  
     fetchData = (datas) => {
+        var nodeData;
         console.log(this.state.datas);
         this.setState({ datas: datas });
-       var nodeData = this.state.datas;
+        nodeData = this.state.datas;
         if (this.state.datas) {
-            console.log('I am here');
-            this.setState({ datas: nodeData, nodes: nodeData.nodes, edges: nodeData.edges }, () => {
+            this.setState({ datas: nodeData ,nodes: nodeData.nodes, edges: nodeData.edges }, () => {
                 this.initNodes(this.refs.nodes);
                 this.initEdges(nodeData.edges);
-           
             });
         }
     else {
-            console.log('Return am here');
-            var jsonString = '{"nodes":[{"className":"square","id":"64d442f0-3d3a-11e8-bf11-4737b922d1c3","text":"开始","style":{"left":"172px","top":"29px"}},{"className":"circle","id":"6575b310-3d3a-11e8-bf11-4737b922d1c3","text":"过程","style":{"left":"157.515625px","top":"175px"}},{"className":"rect","id":"660cea00-3d3a-11e8-bf11-4737b922d1c3","text":"结束","style":{"left":"188.515625px","top":"350px"}}],"edges":[{"source":"64d442f0-3d3a-11e8-bf11-4737b922d1c3","target":"6575b310-3d3a-11e8-bf11-4737b922d1c3","labelText":"sdd"},{"source":"6575b310-3d3a-11e8-bf11-4737b922d1c3","target":"660cea00-3d3a-11e8-bf11-4737b922d1c3","labelText":"sdssd"}]}';
-            var nodeData = JSON.parse(jsonString);
+            var jsonString = '{"nodes":[{"className":"rect","id":"0c3dda60-5793-11e9-8e5a-7998c6fd625e","text":"Start","style":{"left":"122.265625px","top":"63px"}},{"className":"circle","id":"0d4426d0-5793-11e9-8e5a-7998c6fd625e","text":"End","style":{"left":"127.265625px","top":"372px"}}],"process":[{"name":"End1"},{"name":"End2"}],"edges":[]}'
+            nodeData = JSON.parse(jsonString);
             console.log(nodeData)
             this.setState({ datas: nodeData, nodes: nodeData.nodes, edges: nodeData.edges }, () => {
                 this.initNodes(this.refs.nodes);
@@ -100,7 +128,7 @@ export default class RightArea extends React.Component {
           title: 'You cannot connect yourself'
       });
     } else {
-      if (connections.length === 0) {  // 检察是否已经建立过连接
+      if (connections.length === 0) {  
         this.setState({info});
         this.addEdge(info);
       } else {
@@ -112,10 +140,10 @@ export default class RightArea extends React.Component {
   }
 
   jspDrop = (info) =>{
-    this.setState({info});
-    let nodes = JSON.parse(JSON.stringify(this.state.nodes));
-    nodes.push(this.createNode(info.drag.el, info.drop.el));
-    this.setState({nodes},()=>{
+      this.setState({ info });
+      let nodes = JSON.parse(JSON.stringify(this.state.nodes));
+      nodes.push(this.createNode(info.drag.el, info.drop.el));
+      this.setState({ nodes },()=>{
       this.initNodes(this.refs.nodes[this.state.nodes.length-1]);
     });
   }
@@ -124,12 +152,11 @@ export default class RightArea extends React.Component {
     let rect = dropEl.getBoundingClientRect()
     return {
       className: dragEl.classList[0],
-      id: uuidv1(),
-      text: dragEl.innerText,
+        id: uuidv1(),
+        text: dragEl.innerText,
       style: {
         left: this.props.pos[0] - rect.left - dropEl.clientLeft + 'px',
-        top: this.props.pos[1] - rect.top - dropEl.clientTop + 'px'
-        // lineHeight: dragEl.clientHeight + 'px'
+        top: this.props.pos[1] - rect.top - dropEl.clientTop + 'px',
       }
     }
   }
@@ -138,7 +165,7 @@ export default class RightArea extends React.Component {
     this.rjsp.draggable(node, {constrain:true});
     this.rjsp.setSuspendDrawing(true);
     DynamicAnchors.map(anchor => this.rjsp.addEndpoint(node, anEndpoint, { anchor }));
-    this.rjsp.setSuspendDrawing(false,true);
+    this.rjsp.setSuspendDrawing(false,true); 
   }
 
   initEdges = (edges) => {
@@ -147,15 +174,20 @@ export default class RightArea extends React.Component {
     this.rjsp.setSuspendDrawing(false,true);
   }
 
-  editLabelText = (info) => {;
-    this.setState({dialogVisible:true, info: info.component, labelText:info.labelText});
-  }
-
+    editLabelText = (info) => {
+        
+        this.setState({ dialogVisible_one: true, info: info.component, labelText: info.labelText });
+    }
+    addProcess = (info, node) => {
+       
+        this.setState({ dialogVisible_two: true, info: info.component, nodeid: node.id });
+        
+    }
   activeElem = () => {
     console.log('activeElem');
   }
 
-  deleteNode = (event,node) => {
+    deleteNode = (event, node) => {
     event.stopPropagation();
     this.rjsp.deleteConnectionsForElement(node.id);
     let edges = this.rjsp.getAllConnections().map(connection => {
@@ -171,7 +203,9 @@ export default class RightArea extends React.Component {
       this.reload();
     });
   }
-
+    hideModal = () => {
+        this.setState({ dialogVisible_one: false });
+    }
   addEdge = (info) => {
     this.rjsp.connect({ source: info.sourceId, target: info.targetId }, Common);
   }
@@ -184,7 +218,7 @@ export default class RightArea extends React.Component {
       edges: this.state.datas.edges
     })
     this.rjsp.bind('beforeDrop', this.jspBeforeDrop);
-    this.initNodes(this.refs.nodes.filter(refNode=>refNode));  // 删除一个节点后，它对应的ref为null，要去掉
+    this.initNodes(this.refs.nodes.filter(refNode=>refNode));  
     this.initEdges(this.state.edges);
   }
 
@@ -201,14 +235,38 @@ export default class RightArea extends React.Component {
   saveLabel = () => {
     this.state.info.getOverlay('label').setLabel(this.state.labelText);
     this.hideModal();
-  }
+    }
+    saveProcess = (id) => {
+       
+        let betas = {
+            process: this.state.shareholders.map((shareholder) => {
 
-  saveDatas = () => {
+                return {
+                    id: id,
+                    shareholder
+                }
+            }),
+      
+        }
+
+        //this.setState({ betas });
+        //this.props.saveDatas(betas);
+
+        console.log(betas);
+    }
+
+
+    saveDatas = () => {
     let datas = {
       nodes: this.state.nodes.map((node, index) => {
-        node.style = this.getStyle(this.refs.nodes[index])
+          node.style = this.getStyle(this.refs.nodes[index])
+          this.hideModal_two();
         return node
-      }),
+        }),
+        //process: this.state.shareholders.map((shareholder, index) => {
+        //    console.log(shareholder.name);
+        //    return shareholder
+        //}),
       edges: this.rjsp.getAllConnections().map(connection => {
         return {
           source: connection.sourceId,
@@ -219,15 +277,8 @@ export default class RightArea extends React.Component {
     }
       this.setState({ datas });
       this.props.saveDatas(datas);
-      console.log(datas);
-      //var nodeData = JSON.stringify(datas);
 
-      //this.setState({ datas: nodeData, nodes: nodeData.nodes, edges: nodeData.edges }, () => {
-      //    this.initNodes(this.refs.nodes);
-      //    this.initEdges(nodeData.edges);
-      //});
- 
-     
+      console.log(datas);
   }
 
   getStyle (node) {
@@ -239,7 +290,7 @@ export default class RightArea extends React.Component {
     }
   }
 
-  render(){
+    render() {
     return (
       <div className="right-area" ref="right">
         <div  className="demo">
@@ -247,31 +298,81 @@ export default class RightArea extends React.Component {
                 <Button type="primary" onClick={this.clearAll}>Clear</Button>
                 <Button type="primary" onClick={this.fetchData}>Reload</Button>
         </div>
-        <Modal
-          title="Edit the text of the connection"
-          visible={this.state.dialogVisible}
-          onCancel={this.hideModal}
-          footer={[
-              <Button key="back" onClick={this.hideModal}>cancel</Button>,
-            <Button key="submit" type="primary" onClick={this.saveLabel}>
-              determine
-            </Button>
-          ]}>
-          <Input placeholder="Basic usage" value={this.state.labelText} onChange={this.changeLabel}/>
-            </Modal>
+  
          
-           
-        {this.state.nodes.map((node,index)=>{
+            <Modal
+                title="Enter the text of the connection"
+                visible={this.state.dialogVisible_one}
+                onCancel={this.hideModal_one}
+                footer={[
+                    <Button key="back" onClick={this.hideModal_one}>cancel</Button>,
+                    <Button key="submit" type="primary" onClick={this.saveLabel} data-dismiss="modal">
+                        Save
+            </Button>
+                ]}>
+                <Input placeholder="Basic usage" value={this.state.labelText} onChange={this.changeLabel} />
+            </Modal>
+
+            <Modal
+                title="Enter New Process"
+                visible={this.state.dialogVisible_two}
+                onCancel={this.hideModal_two}
+                id={this.state.nodeid}
+                footer={[
+                    <Button key="back" onClick={this.hideModal_two}>cancel</Button>,
+                    <Button key="submit" type="primary" onClick={this.saveDatas}>
+                        determine
+            </Button>
+                ]}>
+                <form onSubmit={this.saveProcess(this.state.nodeid)}>
+                  
+                    <h4>Add Process</h4>
+
+                    {this.state.shareholders.map((shareholder, id) => (
+                        <div className="shareholder">
+          
+                            <input
+                                type="text"
+                                name="name"
+                                onChange={this.handleShareholderNameChange(id)}
+                            />
+                            <button
+                                type="button"
+                                onClick={this.handleRemoveShareholder(id)}
+                                className="small"
+                            >
+                                -
+            </button>
+                        </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={this.handleAddShareholder}
+                        className="small"
+                    >
+                        Add Process
+        </button>
+                   
+                </form>
+           </Modal>
+
+
+            {this.state.nodes.map((node, index) => {
+               
          return(
           <div
-            key={index}
-            className={'node '+node.className}
-            id={node.id}
-            ref={nodes=>this.refs.nodes[index]=nodes}
-            style={node.style}
-            onClick={this.activeElem}
-          >
-            {node.text}
+                 key={index}
+                 className={'node ' + node.className}
+                 id={node.id}
+                 ref={nodes => this.refs.nodes[index] = nodes}
+                 style={node.style}
+                 onClick={this.activeElem}
+          
+             >
+                 
+                 {node.title}
+            <div className="add-btn" onClick={event=>this.addProcess(event,node)}>+</div>
+
             <div className="delete-btn" onClick={event=>this.deleteNode(event,node)}>X</div>
           </div>
           )

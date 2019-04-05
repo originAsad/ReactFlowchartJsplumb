@@ -4,7 +4,6 @@ import LeftArea from './leftArea';
 import RightArea from './rightArea';
 import BottomArea from './bottomArea';
 
-
 export default class JsPlumb extends React.Component {
   state = {
     pos: [0,0],
