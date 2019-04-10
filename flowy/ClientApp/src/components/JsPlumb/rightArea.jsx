@@ -37,17 +37,41 @@ export default class RightArea extends React.Component {
     dialogVisible_one: false,
     dialogVisible_two: false,
     datas: null,
+    betas:null,
     dialogTitle: '',
     labelText: '',
-     nodes: [],
-     edges: [],
+    nodes: [],
+    edges: [],
       info: null,
-      shareholders: [{
+    shareholders: [{
           name: ""
-      }],
-      nodeid:null,
-  }
-
+     }],
+      nodetext: null,
+      edit: null,
+    }
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: 'Enter Text',
+            initialized: false,
+            dialogVisible_one: false,
+            dialogVisible_two: false,
+            datas: null,
+            betas: null,
+            dialogTitle: '',
+            labelText: '',
+            nodes: [],
+            edges: [],
+            info: null,
+            shareholders: [{
+                name: ""
+            }],
+            nodetext: null,
+            edit: null,
+        };
+        this.publish = this.publish.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+}
   componentDidMount() {
     this.init();
     this.refs.nodes = [];
@@ -61,25 +85,35 @@ export default class RightArea extends React.Component {
   hideModal_two = () => {
         this.setState({ dialogVisible_two: false });
     }
+ 
+    handleChange({ target }) {
+        this.setState({
+            [target.name]: target.value
+        });
+    }
 
-    handleShareholderNameChange = idx => evt => {
-        const newShareholders = this.state.shareholders.map((shareholder, sidx) => {
-            if (idx !== sidx) return shareholder;
-            return { ...shareholder, name: evt.target.value };
+    publish() {
+        console.log(this.state.betas);
+        console.log('I am here');
+    }
+    handleProcessNameChange = idx => evt => {
+        const newProcess = this.state.nodes.map((node, sidx) => {
+            if (idx !== sidx) return node;
+            return { ...node, name: evt.target.value };
         });
 
-        this.setState({ shareholders: newShareholders });
+        this.setState({ nodes: newProcess });
     };
-
-    handleAddShareholder = () => {
+    
+    handleAddProcess = () => {
         this.setState({
-            shareholders: this.state.shareholders.concat([{ name: "" }])
+            nodes: this.state.nodes.concat([{ name: "" }])
         });
     };
 
-    handleRemoveShareholder = idx => () => {
+    handleRemoveProcess = idx => () => {
         this.setState({
-            shareholders: this.state.shareholders.filter((s, sidx) => idx !== sidx)
+            nodes: this.state.nodes.filter((s, sidx) => idx !== sidx)
         });
     };
     
@@ -97,13 +131,13 @@ export default class RightArea extends React.Component {
     this.fetchData()
   }
   
-    fetchData = (datas) => {
+    fetchData = (datas,betas) => {
         var nodeData;
-        console.log(this.state.datas);
+        
         this.setState({ datas: datas });
         nodeData = this.state.datas;
         if (this.state.datas) {
-            this.setState({ datas: nodeData ,nodes: nodeData.nodes, edges: nodeData.edges }, () => {
+            this.setState({ datas: nodeData, nodes: nodeData.nodes, edges: nodeData.edges }, () => {
                 this.initNodes(this.refs.nodes);
                 this.initEdges(nodeData.edges);
             });
@@ -178,9 +212,9 @@ export default class RightArea extends React.Component {
         
         this.setState({ dialogVisible_one: true, info: info.component, labelText: info.labelText });
     }
-    addProcess = (info, node) => {
-       
-        this.setState({ dialogVisible_two: true, info: info.component, nodeid: node.id });
+    editProcess = (info, node) => {
+
+        this.setState({ dialogVisible_two: true, info: info.component, nodeid: node.id, edit: node, nodetext: node.text });
         
     }
   activeElem = () => {
@@ -236,23 +270,18 @@ export default class RightArea extends React.Component {
     this.state.info.getOverlay('label').setLabel(this.state.labelText);
     this.hideModal();
     }
-    saveProcess = (id) => {
-       
-        let betas = {
-            process: this.state.shareholders.map((shareholder) => {
 
-                return {
-                    id: id,
-                    shareholder
-                }
-            }),
-      
-        }
+    saveProcess = () => {
+        let node = this.state.edit;
+        
+        let nodes = [...this.state.nodes];
+        
+        let index = nodes.findIndex(el => el.id === node.id);
+        console.log(this.state.abc);
+        nodes[index].text = this.state.abc;
+        this.setState({nodes });
 
-        //this.setState({ betas });
-        //this.props.saveDatas(betas);
-
-        console.log(betas);
+        console.log(nodes);
     }
 
 
@@ -314,45 +343,43 @@ export default class RightArea extends React.Component {
             </Modal>
 
             <Modal
-                title="Enter New Process"
+                title="Edit the Process"
                 visible={this.state.dialogVisible_two}
                 onCancel={this.hideModal_two}
                 id={this.state.nodeid}
                 footer={[
                     <Button key="back" onClick={this.hideModal_two}>cancel</Button>,
-                    <Button key="submit" type="primary" onClick={this.saveDatas}>
-                        determine
-            </Button>
                 ]}>
-                <form onSubmit={this.saveProcess(this.state.nodeid)}>
+               
+                <form>
                   
-                    <h4>Add Process</h4>
-
-                    {this.state.shareholders.map((shareholder, id) => (
-                        <div className="shareholder">
+                    <h4>Edit Process</h4>
+                    <div className="shareholder">
           
-                            <input
-                                type="text"
-                                name="name"
-                                onChange={this.handleShareholderNameChange(id)}
-                            />
+                        <input
+                            type="text"
+                            name="abc"
+                            onChange={this.handleChange}
+                            defaultValue={this.state.nodetext}
+                       /> 
                             <button
                                 type="button"
-                                onClick={this.handleRemoveShareholder(id)}
+                                onClick={this.handleRemoveProcess()}
                                 className="small"
                             >
                                 -
             </button>
-                        </div>
-                    ))}
+              
+                        </div> 
+                 
                     <button
                         type="button"
-                        onClick={this.handleAddShareholder}
+                        onClick={this.saveProcess}
                         className="small"
                     >
-                        Add Process
+                        Edit Process
         </button>
-                   
+             
                 </form>
            </Modal>
 
@@ -369,9 +396,9 @@ export default class RightArea extends React.Component {
                  onClick={this.activeElem}
           
              >
-                 
-                 {node.title}
-            <div className="add-btn" onClick={event=>this.addProcess(event,node)}>+</div>
+                 {index}                 
+                 {node.text}
+            <div className="add-btn" onClick={event=>this.editProcess(event,node)}>+</div>
 
             <div className="delete-btn" onClick={event=>this.deleteNode(event,node)}>X</div>
           </div>
