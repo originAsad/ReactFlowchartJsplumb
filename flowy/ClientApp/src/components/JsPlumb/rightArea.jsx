@@ -32,27 +32,10 @@ const Common = {
 }
 export default class RightArea extends React.Component {
 
-  state = {
-    initialized: false,
-    dialogVisible_one: false,
-    dialogVisible_two: false,
-    datas: null,
-    betas:null,
-    dialogTitle: '',
-    labelText: '',
-    nodes: [],
-    edges: [],
-      info: null,
-    shareholders: [{
-          name: ""
-     }],
-      nodetext: null,
-      edit: null,
-    }
     constructor(props) {
         super(props);
         this.state = {
-            value: 'Enter Text',
+            value: ' Enter Text',
             initialized: false,
             dialogVisible_one: false,
             dialogVisible_two: false,
@@ -63,13 +46,13 @@ export default class RightArea extends React.Component {
             nodes: [],
             edges: [],
             info: null,
-            shareholders: [{
-                name: ""
-            }],
-            nodetext: null,
+            texts: [],
+            nodetext: [],
             edit: null,
+            index: null,
+            ntext:[],
         };
-        this.publish = this.publish.bind(this);
+    
         this.handleChange = this.handleChange.bind(this);
 }
   componentDidMount() {
@@ -83,40 +66,22 @@ export default class RightArea extends React.Component {
     this.setState({dialogVisible_one:false});
   }
   hideModal_two = () => {
-        this.setState({ dialogVisible_two: false });
+        this.setState({ dialogVisible_two: false ,texts:[]});
     }
- 
-    handleChange({ target }) {
-        this.setState({
-            [target.name]: target.value
-        });
+    addProcess() {
+        this.setState({ texts: [...this.state.texts, ""] });
+    }
+    handleChange(e, index) {
+        //eslint-disable-next-line
+        this.state.texts[index] = e.target.value
+        this.setState({ texts: this.state.texts })
+
+    }
+    handleRemove(index) {
+        this.state.texts.splice(index, 1)
+        this.setState({ texts: this.state.texts })
     }
 
-    publish() {
-        console.log(this.state.betas);
-        console.log('I am here');
-    }
-    handleProcessNameChange = idx => evt => {
-        const newProcess = this.state.nodes.map((node, sidx) => {
-            if (idx !== sidx) return node;
-            return { ...node, name: evt.target.value };
-        });
-
-        this.setState({ nodes: newProcess });
-    };
-    
-    handleAddProcess = () => {
-        this.setState({
-            nodes: this.state.nodes.concat([{ name: "" }])
-        });
-    };
-
-    handleRemoveProcess = idx => () => {
-        this.setState({
-            nodes: this.state.nodes.filter((s, sidx) => idx !== sidx)
-        });
-    };
-    
   init = () => {
     this.rjsp = jsPlumb.getInstance({
       ConnectionOverlays: [
@@ -145,7 +110,7 @@ export default class RightArea extends React.Component {
     else {
             var jsonString = '{"nodes":[{"className":"rect","id":"0c3dda60-5793-11e9-8e5a-7998c6fd625e","text":"Start","style":{"left":"122.265625px","top":"63px"}},{"className":"circle","id":"0d4426d0-5793-11e9-8e5a-7998c6fd625e","text":"End","style":{"left":"127.265625px","top":"372px"}}],"process":[{"name":"End1"},{"name":"End2"}],"edges":[]}'
             nodeData = JSON.parse(jsonString);
-            console.log(nodeData)
+          
             this.setState({ datas: nodeData, nodes: nodeData.nodes, edges: nodeData.edges }, () => {
                 this.initNodes(this.refs.nodes);
                 this.initEdges(nodeData.edges);
@@ -212,16 +177,16 @@ export default class RightArea extends React.Component {
         
         this.setState({ dialogVisible_one: true, info: info.component, labelText: info.labelText });
     }
-    editProcess = (info, node) => {
+    editProcess = (info, node,ntext) => {
 
-        this.setState({ dialogVisible_two: true, info: info.component, nodeid: node.id, edit: node, nodetext: node.text });
-        
+        this.setState({ dialogVisible_two: true, info: info.component, ntext: node.text, nodeid: node.id, edit: node, nodetext: node.text });
+        console.log(this.state.ntext)
     }
   activeElem = () => {
-    console.log('activeElem');
+    console.log('I have been clicked');
   }
 
-    deleteNode = (event, node) => {
+  deleteNode = (event, node) => {
     event.stopPropagation();
     this.rjsp.deleteConnectionsForElement(node.id);
     let edges = this.rjsp.getAllConnections().map(connection => {
@@ -273,17 +238,15 @@ export default class RightArea extends React.Component {
 
     saveProcess = () => {
         let node = this.state.edit;
-        
+
         let nodes = [...this.state.nodes];
-        
+
         let index = nodes.findIndex(el => el.id === node.id);
-        console.log(this.state.abc);
-        nodes[index].text = this.state.abc;
-        this.setState({nodes });
-
-        console.log(nodes);
+        
+        nodes[index].text = this.state.texts;
+        this.setState({ nodes: nodes, dialogVisible_two: false });
+   
     }
-
 
     saveDatas = () => {
     let datas = {
@@ -292,10 +255,6 @@ export default class RightArea extends React.Component {
           this.hideModal_two();
         return node
         }),
-        //process: this.state.shareholders.map((shareholder, index) => {
-        //    console.log(shareholder.name);
-        //    return shareholder
-        //}),
       edges: this.rjsp.getAllConnections().map(connection => {
         return {
           source: connection.sourceId,
@@ -307,7 +266,6 @@ export default class RightArea extends React.Component {
       this.setState({ datas });
       this.props.saveDatas(datas);
 
-      console.log(datas);
   }
 
   getStyle (node) {
@@ -348,36 +306,40 @@ export default class RightArea extends React.Component {
                 onCancel={this.hideModal_two}
                 id={this.state.nodeid}
                 footer={[
-                    <Button key="back" onClick={this.hideModal_two}>cancel</Button>,
+                    <Button key="back" onClick={this.hideModal_two}>cancel</Button>
                 ]}>
                
                 <form>
-                  
-                    <h4>Edit Process</h4>
-                    <div className="shareholder">
+                 
+                    {console.log(this.ntext)}
+ 
+                    {this.state.texts.map((text, index) => (
+                      <div className="shareholder" key={index}>
           
-                        <input
-                            type="text"
-                            name="abc"
-                            onChange={this.handleChange}
-                            defaultValue={this.state.nodetext}
-                       /> 
+                            <input
+                                type="text"
+                                onChange={(e) => this.handleChange(e, index)}
+                                defaultValue={this.state.ntext} /> 
                             <button
                                 type="button"
-                                onClick={this.handleRemoveProcess()}
-                                className="small"
-                            >
+                                onClick={()=>this.handleRemove(index)}
+                                 className="small">
                                 -
-            </button>
-              
+                           </button>                            
                         </div> 
-                 
+                    ))}
                     <button
                         type="button"
-                        onClick={this.saveProcess}
+                        onClick={(e) => this.addProcess(e)}
                         className="small"
                     >
-                        Edit Process
+                        Add Process
+        </button>
+                    <button
+                        type="button"
+                        onClick={(e)=>this.saveProcess(e)}
+                        className="small">
+                        Edit
         </button>
              
                 </form>
@@ -385,7 +347,9 @@ export default class RightArea extends React.Component {
 
 
             {this.state.nodes.map((node, index) => {
-               
+                const showbutton = node.className === 'square';
+                const decisionbutton = node.className === 'diamond';
+             
          return(
           <div
                  key={index}
@@ -396,14 +360,21 @@ export default class RightArea extends React.Component {
                  onClick={this.activeElem}
           
              >
-                 {index}                 
-                 {node.text}
-            <div className="add-btn" onClick={event=>this.editProcess(event,node)}>+</div>
-
+               
+                {node.text+'\n'}
+                 {showbutton
+               ?  <div className="add-btn" onClick={event => this.editProcess(event, node,index)}>+</div>
+               :  <p></p>
+                 }
+           
+                 {decisionbutton
+                     ? <div className="add-btn" onClick={event => this.editProcess(event, node, index,node.text)}>+</div>
+                     : <p></p>
+                 }
             <div className="delete-btn" onClick={event=>this.deleteNode(event,node)}>X</div>
           </div>
-          )
-            })}
+                )
+           })}
             
       </div>
     );

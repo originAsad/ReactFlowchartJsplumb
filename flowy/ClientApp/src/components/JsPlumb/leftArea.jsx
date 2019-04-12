@@ -12,7 +12,7 @@ export default class LeftArea extends React.Component {
 
   init = () => {
     // console.log('init');
-    this.state.jsp.draggable([this.refs.square, this.refs.circle, this.refs.rect], {
+    this.state.jsp.draggable([this.refs.square, this.refs.circle, this.refs.rect,this.refs.diamond], {
       clone: true,
       drag: params => {
         this.props.updatepos( params.pos );
@@ -24,7 +24,13 @@ export default class LeftArea extends React.Component {
       <div className="left-area">
         <div className="item">
           <div className="rect center" ref="rect">Start</div>
-        </div>
+            </div>
+            <div className="item">
+                <div className="diamond center" ref="diamond">
+                    Decision
+                </div>
+            </div>
+
             <div className="item">
                 <div className="square center" ref="square">
                     Process
